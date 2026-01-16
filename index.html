@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GPS Test</title>
+<title>GPS Test – Fixed</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -28,27 +28,30 @@ p { font-size:14px; }
 
   <p>Distance: <b id="distance">-</b> km</p>
 
-  <button class="btn" onclick="getDriverLocation()">📍 Get My Location</button>
-  <button class="btn-green" onclick="openNavigation()">🧭 Open Navigation</button>
+  <button id="btn-gps" class="btn">📍 Get My Location</button>
+  <button id="btn-nav" class="btn-green">🧭 Open Navigation</button>
 </div>
 
 <script>
-  // ✅ GLOBAL VARIABLES
+document.addEventListener("DOMContentLoaded", () => {
+
   let driverLat = null;
   let driverLng = null;
 
   const riderLat = 31.5204;
   const riderLng = 74.3587;
 
-  // ✅ GLOBAL FUNCTION
-  function getDriverLocation() {
+  const btnGps = document.getElementById("btn-gps");
+  const btnNav = document.getElementById("btn-nav");
+
+  btnGps.addEventListener("click", () => {
     if (!navigator.geolocation) {
       alert("Geolocation not supported");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      function(pos) {
+      (pos) => {
         driverLat = pos.coords.latitude;
         driverLng = pos.coords.longitude;
 
@@ -58,23 +61,22 @@ p { font-size:14px; }
         const km = getDistanceKm(driverLat, driverLng, riderLat, riderLng);
         document.getElementById("distance").innerText = km;
       },
-      function(err) {
+      (err) => {
         alert("GPS Error: " + err.message);
       },
       { enableHighAccuracy: true }
     );
-  }
+  });
 
-  // ✅ GLOBAL FUNCTION
-  function openNavigation() {
-    if (driverLat === null || driverLng === null) {
-      alert("Please get driver location first");
+  btnNav.addEventListener("click", () => {
+    if (driverLat === null) {
+      alert("Get GPS first");
       return;
     }
 
     const url = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLng}&destination=${riderLat},${riderLng}`;
     window.open(url, "_blank");
-  }
+  });
 
   function getDistanceKm(lat1, lng1, lat2, lng2) {
     const R = 6371;
@@ -87,6 +89,8 @@ p { font-size:14px; }
       Math.sin(dLng/2)**2;
     return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2);
   }
+
+});
 </script>
 
 </body>
