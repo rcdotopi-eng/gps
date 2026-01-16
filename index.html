@@ -1,79 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GPS Distance Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>GPS Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .btn {
-      background: #007bff;
-      color: white;
-    }
-    .btn-green {
-      background: #28a745;
-      color: white;
-    }
-    p {
-      margin: 8px 0;
-      font-size: 14px;
-    }
-    .label {
-      font-weight: bold;
-    }
-  </style>
+<style>
+body { font-family: Arial; background:#f4f6f9; padding:20px; }
+.card { background:#fff; padding:20px; border-radius:10px; max-width:420px; margin:auto; }
+button { width:100%; padding:14px; margin-top:10px; font-size:16px; border:none; border-radius:8px; }
+.btn { background:#007bff; color:white; }
+.btn-green { background:#28a745; color:white; }
+p { font-size:14px; }
+</style>
 </head>
+
 <body>
 
 <div class="card">
   <h2>🚗 Driver GPS Test</h2>
 
-  <p><span class="label">Driver Lat:</span> <span id="dlat">-</span></p>
-  <p><span class="label">Driver Lng:</span> <span id="dlng">-</span></p>
+  <p>Driver Lat: <b id="dlat">-</b></p>
+  <p>Driver Lng: <b id="dlng">-</b></p>
 
-  <hr>
+  <p>Rider Lat: <b>31.5204</b></p>
+  <p>Rider Lng: <b>74.3587</b></p>
 
-  <p><span class="label">Rider Lat:</span> <span id="rlat">31.5204</span></p>
-  <p><span class="label">Rider Lng:</span> <span id="rlng">74.3587</span></p>
-
-  <hr>
-
-  <p><span class="label">Distance:</span> <span id="distance">-</span> km</p>
+  <p>Distance: <b id="distance">-</b> km</p>
 
   <button class="btn" onclick="getDriverLocation()">📍 Get My Location</button>
-  <button class="btn-green" onclick="navigate()">🧭 Open Navigation</button>
+  <button class="btn-green" onclick="openNavigation()">🧭 Open Navigation</button>
 </div>
 
 <script>
+  // ✅ GLOBAL VARIABLES
   let driverLat = null;
   let driverLng = null;
 
-  // Dummy rider location (change this to test)
   const riderLat = 31.5204;
   const riderLng = 74.3587;
 
+  // ✅ GLOBAL FUNCTION
   function getDriverLocation() {
     if (!navigator.geolocation) {
       alert("Geolocation not supported");
@@ -81,7 +48,7 @@
     }
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      function(pos) {
         driverLat = pos.coords.latitude;
         driverLng = pos.coords.longitude;
 
@@ -91,31 +58,36 @@
         const km = getDistanceKm(driverLat, driverLng, riderLat, riderLng);
         document.getElementById("distance").innerText = km;
       },
-      (err) => {
+      function(err) {
         alert("GPS Error: " + err.message);
       },
       { enableHighAccuracy: true }
     );
   }
 
-  function getDistanceKm(lat1, lng1, lat2, lng2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng / 2) ** 2;
-
-    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2);
-  }
-
-  function navigate() {
+  // ✅ GLOBAL FUNCTION
+  function openNavigation() {
     if (driverLat === null || driverLng === null) {
       alert("Please get driver location first");
       return;
     }
 
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLn
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${driverLat},${driverLng}&destination=${riderLat},${riderLng}`;
+    window.open(url, "_blank");
+  }
+
+  function getDistanceKm(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat/2)**2 +
+      Math.cos(lat1*Math.PI/180) *
+      Math.cos(lat2*Math.PI/180) *
+      Math.sin(dLng/2)**2;
+    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2);
+  }
+</script>
+
+</body>
+</html>
